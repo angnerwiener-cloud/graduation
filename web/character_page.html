@@ -1006,42 +1006,36 @@ btnVolume.addEventListener('click', () => {
 const MODEL_PATH = 'models/narrator/narrator.model3.json'; // ← 在此填入模型 .model3.json 路径
 
 async function initLive2D() {
-  if (!MODEL_PATH) {
-    console.log('[Live2D] MODEL_PATH 未设置，跳过加载');
-    return;
-  }
+  if (!MODEL_PATH) return;
 
   try {
     const canvas    = document.getElementById('live2d-canvas');
     const container = document.getElementById('live2d-container');
 
-    // 获取容器实际尺寸
-    const parent = container.parentElement;
-    const W = parent.clientWidth  || 400;
-    const H = parent.clientHeight || 600;
+    // 兼容不同版本的注册方式
+    const Live2DModel = PIXI.live2d?.Live2DModel || window.PIXI?.live2d?.Live2DModel;
+    if (!Live2DModel) {
+      console.error('[Live2D] Live2DModel 未找到');
+      return;
+    }
 
-    // 同步 canvas 的 CSS 和 attribute 尺寸
+    Live2DModel.registerTicker(PIXI.Ticker);
+
+    const W = container.parentElement.clientWidth  || 400;
+    const H = container.parentElement.clientHeight || 600;
+
     canvas.style.width  = W + 'px';
     canvas.style.height = H + 'px';
 
-    // 注册 Live2D 插件到 PIXI（必须在 Application 创建前）
-    PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker);
-
     const app = new PIXI.Application({
       view: canvas,
-      width:  W,
-      height: H,
+      width: W, height: H,
       backgroundAlpha: 0,
       antialias: true,
-      resolution: window.devicePixelRatio || 1,
-      autoDensity: true,
     });
 
-    const model = await PIXI.live2d.Live2DModel.from(MODEL_PATH, {
-      autoInteract: true,
-    });
+    const model = await Live2DModel.from(MODEL_PATH, { autoInteract: true });
 
-    // 缩放撑满容器
     const scale = Math.min(W / model.width, H / model.height) * 0.92;
     model.scale.set(scale);
     model.x = (W - model.width  * scale) / 2;
@@ -1049,17 +1043,13 @@ async function initLive2D() {
 
     app.stage.addChild(model);
 
-    // 模型就绪 → 占位卡片淡出
     container.classList.add('loaded');
     const charCard = document.getElementById('charCard');
     const charInfo = document.getElementById('charInfo');
     if (charCard) charCard.classList.add('hidden');
     if (charInfo) charInfo.classList.add('hidden');
 
-    // 暴露给外部调用（嘴型同步等）
     window._live2dModel = model;
-    window._live2dApp   = app;
-
     console.log('[Live2D] 模型加载成功 ✓');
 
   } catch (err) {
