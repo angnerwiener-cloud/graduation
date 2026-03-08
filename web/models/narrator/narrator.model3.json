@@ -3,132 +3,21 @@
 	"FileReferences": {
 		"Moc": "narrator.moc3",
 		"Textures": [
-			"textures/texture_00.png"
+			"narrator.8192/texture_00.png"
 		],
 		"Physics": "narrator.physics3.json",
-		"DisplayInfo": "narrator.cdi3.json",
-		"Expressions": [
-			{
-				"Name": "原版",
-				"File": "expressions/原版.exp3.json"
-			},
-			{
-				"Name": "原版待机",
-				"File": "expressions/原版待机.exp3.json"
-			},
-			{
-				"Name": "合拢袖",
-				"File": "expressions/合拢袖.exp3.json"
-			},
-			{
-				"Name": "合袖",
-				"File": "expressions/合袖.exp3.json"
-			},
-			{
-				"Name": "合袖抬笔",
-				"File": "expressions/合袖抬笔.exp3.json"
-			},
-			{
-				"Name": "合袖握卷",
-				"File": "expressions/合袖握卷.exp3.json"
-			},
-			{
-				"Name": "合袖竹简",
-				"File": "expressions/合袖竹简.exp3.json"
-			},
-			{
-				"Name": "合袖落笔",
-				"File": "expressions/合袖落笔.exp3.json"
-			},
-			{
-				"Name": "告别动画",
-				"File": "expressions/告别动画.exp3.json"
-			},
-			{
-				"Name": "待机动画",
-				"File": "expressions/待机动画.exp3.json"
-			},
-			{
-				"Name": "思考动画",
-				"File": "expressions/思考动画.exp3.json"
-			},
-			{
-				"Name": "拢袖",
-				"File": "expressions/拢袖.exp3.json"
-			},
-			{
-				"Name": "拢袖抬笔",
-				"File": "expressions/拢袖抬笔.exp3.json"
-			},
-			{
-				"Name": "拢袖握卷",
-				"File": "expressions/拢袖握卷.exp3.json"
-			},
-			{
-				"Name": "拢袖竹简",
-				"File": "expressions/拢袖竹简.exp3.json"
-			},
-			{
-				"Name": "拢袖落笔",
-				"File": "expressions/拢袖落笔.exp3.json"
-			},
-			{
-				"Name": "指引动画",
-				"File": "expressions/指引动画.exp3.json"
-			},
-			{
-				"Name": "欢迎动画",
-				"File": "expressions/欢迎动画.exp3.json"
-			},
-			{
-				"Name": "点击动画",
-				"File": "expressions/点击动画.exp3.json"
-			},
-			{
-				"Name": "答题反馈正确",
-				"File": "expressions/答题反馈正确.exp3.json"
-			},
-			{
-				"Name": "答题反馈错误",
-				"File": "expressions/答题反馈错误.exp3.json"
-			},
-			{
-				"Name": "表情冷汗",
-				"File": "expressions/表情冷汗.exp3.json"
-			},
-			{
-				"Name": "表情哭",
-				"File": "expressions/表情哭.exp3.json"
-			},
-			{
-				"Name": "表情害羞",
-				"File": "expressions/表情害羞.exp3.json"
-			},
-			{
-				"Name": "表情无语",
-				"File": "expressions/表情无语.exp3.json"
-			},
-			{
-				"Name": "表情生气",
-				"File": "expressions/表情生气.exp3.json"
-			},
-			{
-				"Name": "表情疑惑",
-				"File": "expressions/表情疑惑.exp3.json"
-			}
-		]
+		"DisplayInfo": "narrator.cdi3.json"
 	},
 	"Groups": [
 		{
 			"Target": "Parameter",
-			"Name": "EyeBlink",
+			"Name": "LipSync",
 			"Ids": []
 		},
 		{
 			"Target": "Parameter",
-			"Name": "LipSync",
+			"Name": "EyeBlink",
 			"Ids": []
 		}
-	],
-	"HitAreas": []
+	]
 }
