@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灯语·见物 — 探索游戏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family:'JFSeal'; src:url('JFZSKSealScript_V3.ttf') format('truetype'); }
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  --dark:      #0f1509;
+  --dark2:     #141c0b;
+  --gold:      #c8a96e;
+  --gold-dim:  #8a7048;
+  --gold-pale: rgba(200,169,110,.1);
+  --text:      #d4c9aa;
+  --muted:     #6a6855;
+  --rust:      #9b6b3a;
+  --rust-light:#b8804a;
+}
+
+html, body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 46%,
+      #1e2e10 0%, #141d0c 38%, #0e1508 68%, #080e04 100%);
+  color: var(--text);
+  font-family: 'Noto Serif SC', serif;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ── grain + ancient grid ── */
+body::before {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(100%2C140%2C50%2C0.045)' stroke-width='0.5'%3E%3Crect x='5' y='5' width='50' height='50'/%3E%3Crect x='12' y='12' width='36' height='36'/%3E%3Cline x1='5' y1='30' x2='55' y2='30'/%3E%3Cline x1='30' y1='5' x2='30' y2='55'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 220px 220px, 60px 60px;
+  opacity: .06;
+  mix-blend-mode: overlay;
+}
+
+/* ── vignette ── */
+body::after {
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background: radial-gradient(ellipse 94% 90% at 50% 50%,
+    transparent 28%, rgba(4,6,3,.38) 65%, rgba(2,4,1,.85) 100%);
+}
+
+/* ── floating deco SVG lines (background layer) ── */
+.bg-deco {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  overflow: hidden;
+}
+.bg-deco svg { position: absolute; }
+
+/* ── cursor ── */
+#cur      { position:fixed; width:6px; height:6px; border-radius:50%;
+            background:var(--gold); pointer-events:none; z-index:9999;
+            transform:translate(-50%,-50%); }
+#cur-ring { position:fixed; width:26px; height:26px; border-radius:50%;
+            border:1px solid rgba(200,169,110,.45); pointer-events:none; z-index:9998;
+            transform:translate(-50%,-50%); transition:left .08s,top .08s; }
+
+/* ── nav ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: .95rem 2.5rem;
+  background: linear-gradient(to bottom, rgba(8,12,5,.95) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(200,169,110,.07);
+}
+.nav-back {
+  display:flex; align-items:center; gap:.6rem;
+  text-decoration:none; font-size:.75rem; letter-spacing:.25em;
+  color:var(--muted); transition:color .3s; cursor:none;
+}
+.nav-back:hover { color:var(--gold); }
+.nav-back-arrow {
+  display:inline-block; width:18px; height:1px;
+  background:currentColor; position:relative;
+}
+.nav-back-arrow::before {
+  content:''; position:absolute; left:0; top:-3px;
+  border:3px solid transparent; border-right:4px solid currentColor;
+}
+.nav-links { display:flex; gap:2.2rem; list-style:none; }
+.nav-links a {
+  text-decoration:none; font-size:.8rem; letter-spacing:.25em;
+  color:var(--muted); transition:color .3s; cursor:none; position:relative;
+}
+.nav-links a::after {
+  content:''; position:absolute; left:0; bottom:-3px;
+  width:0; height:1px; background:var(--gold);
+  transition:width .3s;
+}
+.nav-links a:hover { color:var(--gold); }
+.nav-links a:hover::after { width:100%; }
+.nav-links a.active { color:var(--gold); }
+
+/* ── page wrapper ── */
+.page {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 7rem 2rem 4rem;
+}
+
+/* ── header ── */
+.header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+  animation: fadeDown .9s ease both;
+}
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.header-eyebrow {
+  display: flex; align-items:center; justify-content:center; gap:.8rem;
+  font-size:.6rem; letter-spacing:.5em; color:var(--rust-light);
+  margin-bottom: 1rem;
+}
+.header-eyebrow::before,
+.header-eyebrow::after {
+  content:''; width:32px; height:1px;
+  background: linear-gradient(to right, transparent, var(--rust-light));
+}
+.header-eyebrow::after { transform: scaleX(-1); }
+
+.header-title {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: .25em;
+  color: var(--text);
+  text-shadow: 0 0 60px rgba(200,169,110,.12);
+  margin-bottom: .9rem;
+}
+
+.header-sub {
+  font-size: .78rem;
+  letter-spacing: .2em;
+  color: var(--muted);
+  line-height: 2;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* thin gold rule under header */
+.header-rule {
+  display:flex; align-items:center; justify-content:center; gap:1rem;
+  margin-top: 1.4rem;
+}
+.header-rule::before,
+.header-rule::after {
+  content:''; flex:1; max-width:80px; height:1px;
+  background:linear-gradient(to right, transparent, rgba(200,169,110,.3));
+}
+.header-rule::after { transform:scaleX(-1); }
+.header-rule-dot { width:4px; height:4px; border-radius:50%; background:var(--gold-dim); }
+
+/* ── card grid ── */
+.cards-wrap {
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+}
+
+/* floating deco between cards */
+.card-sep {
+  position: absolute; top:50%; transform:translateY(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:.5rem;
+  z-index: 2; pointer-events:none;
+}
+.card-sep-left  { left: calc(33.33% - 12px); }
+.card-sep-right { left: calc(66.66% - 12px); }
+
+.sep-line {
+  width:1px; height:50px;
+  background:linear-gradient(to bottom, transparent, rgba(200,169,110,.2), transparent);
+}
+.sep-icon {
+  font-size:.9rem; opacity:.3;
+  animation: sepFloat 3s ease-in-out infinite;
+}
+.card-sep-right .sep-icon { animation-delay:1s; }
+@keyframes sepFloat {
+  0%,100% { transform:translateY(0); opacity:.3; }
+  50%      { transform:translateY(-4px); opacity:.5; }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.8rem;
+  position: relative; z-index:1;
+}
+
+/* ── individual card ── */
+.card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(22,34,12,.88), rgba(14,22,8,.96));
+  border: 1px solid rgba(70,100,35,.2);
+  overflow: hidden;
+  cursor: none;
+  animation: fadeUp .8s ease both;
+  transition: transform .4s cubic-bezier(.2,0,.2,1),
+              box-shadow .4s ease,
+              border-color .4s ease;
+}
+.card:nth-child(1) { animation-delay:.1s; }
+.card:nth-child(2) { animation-delay:.22s; }
+.card:nth-child(3) { animation-delay:.34s; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* top gold line */
+.card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(200,169,110,.5), transparent);
+  transition: opacity .4s;
+}
+/* right gold edge */
+.card::after {
+  content:''; position:absolute; top:10%; right:0; width:1px; height:80%;
+  background:linear-gradient(to bottom, transparent, rgba(200,169,110,.3) 30%,
+    rgba(200,169,110,.3) 70%, transparent);
+}
+
+/* hover state */
+.card:hover {
+  transform: translateY(-8px) scale(1.018);
+  border-color: rgba(200,169,110,.38);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.5),
+    0 0 40px rgba(200,169,110,.06),
+    inset 0 0 30px rgba(200,169,110,.03);
+}
+.card:hover::before { opacity: 1.5; }
+
+/* inner glow on hover */
+.card-glow {
+  position: absolute; inset: 0; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 100%,
+    rgba(200,169,110,.06) 0%, transparent 70%);
+  opacity: 0; transition: opacity .4s;
+}
+.card:hover .card-glow { opacity: 1; }
+
+/* card illustration area */
+.card-illust {
+  position: relative; z-index:1;
+  height: 170px;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
+  border-bottom: 1px solid rgba(200,169,110,.06);
+}
+.card-illust-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 110%, rgba(60,90,28,.25) 0%, transparent 65%),
+    linear-gradient(180deg, transparent 30%, rgba(10,16,6,.6) 100%);
+}
+.card-icon {
+  font-size: 3.8rem;
+  position:relative; z-index:1;
+  filter: drop-shadow(0 4px 20px rgba(200,169,110,.18));
+  transition: transform .4s ease, filter .4s ease;
+}
+.card:hover .card-icon {
+  transform: translateY(-6px) scale(1.08);
+  filter: drop-shadow(0 8px 28px rgba(200,169,110,.32));
+}
+
+/* corner brackets on illust */
+.card-illust::before, .card-illust::after {
+  content:''; position:absolute; width:14px; height:14px;
+  border-color:rgba(200,169,110,.2); border-style:solid; z-index:2;
+  transition: border-color .4s;
+}
+.card-illust::before { top:10px; left:10px; border-width:1px 0 0 1px; }
+.card-illust::after  { bottom:10px; right:10px; border-width:0 1px 1px 0; }
+.card:hover .card-illust::before,
+.card:hover .card-illust::after { border-color:rgba(200,169,110,.45); }
+
+/* card content */
+.card-body { padding: 1.6rem 1.6rem 1.8rem; position:relative; z-index:1; }
+
+.card-tag {
+  font-size:.58rem; letter-spacing:.4em; color:var(--rust-light);
+  opacity:.75; margin-bottom:.6rem;
+  display:flex; align-items:center; gap:.5rem;
+}
+.card-tag::before {
+  content:''; width:12px; height:1px; background:var(--rust-light); opacity:.5;
+}
+
+.card-title {
+  font-family:'Ma Shan Zheng', cursive;
+  font-size:1.28rem; letter-spacing:.15em;
+  color:var(--text); margin-bottom:.7rem;
+  transition: color .3s;
+}
+.card:hover .card-title { color:#e8d9b8; }
+
+.card-desc {
+  font-size:.8rem; line-height:2; letter-spacing:.04em;
+  color:var(--muted); margin-bottom:1.3rem;
+}
+
+/* cta link */
+.card-cta {
+  display:inline-flex; align-items:center; gap:.6rem;
+  font-size:.68rem; letter-spacing:.3em; color:var(--gold-dim);
+  text-decoration:none; cursor:none;
+  transition:color .3s, gap .3s;
+}
+.card:hover .card-cta { color:var(--gold); gap:.9rem; }
+.card-cta-line {
+  width:20px; height:1px; background:currentColor; position:relative;
+}
+.card-cta-line::after {
+  content:''; position:absolute; right:0; top:-3px;
+  border:3px solid transparent; border-left:4px solid currentColor;
+}
+
+/* ── bottom branding ── */
+.brand-foot {
+  margin-top: 3.5rem;
+  text-align:center;
+  animation: fadeUp 1s .5s ease both;
+}
+.brand-foot-text {
+  font-family:'Ma Shan Zheng', cursive;
+  font-size:.95rem; letter-spacing:.5em;
+  color:rgba(200,169,110,.22);
+  position:relative; display:inline-block;
+}
+.brand-foot-text::before,
+.brand-foot-text::after {
+  content:''; position:absolute; top:50%;
+  width:28px; height:1px;
+  background:rgba(200,169,110,.15);
+}
+.brand-foot-text::before { right:calc(100% + 12px); }
+.brand-foot-text::after  { left:calc(100% + 12px); }
+
+/* ── floating background icons ── */
+.float-icon {
+  position: fixed; pointer-events:none; z-index:1;
+  font-size:1.4rem; opacity:.04;
+  animation: iconFloat linear infinite;
+}
+@keyframes iconFloat {
+  0%   { transform:translateY(0)   rotate(0deg); }
+  50%  { transform:translateY(-18px) rotate(4deg); }
+  100% { transform:translateY(0)   rotate(0deg); }
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- floating bg deco — SVG line shapes -->
+<div class="float-icon" style="top:12%;left:7%;animation-duration:7s;">
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="6"/><line x1="16" y1="6" x2="16" y2="2"/><line x1="16" y1="26" x2="16" y2="30"/><line x1="6" y1="16" x2="2" y2="16"/><line x1="26" y1="16" x2="30" y2="16"/>
+  </svg>
+</div>
+<div class="float-icon" style="top:66%;left:5%;animation-duration:9s;animation-delay:1s;">
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <rect x="4" y="4" width="20" height="20" rx="1"/><rect x="9" y="9" width="10" height="10" rx="1"/><line x1="14" y1="4" x2="14" y2="9"/><line x1="14" y1="19" x2="14" y2="24"/>
+  </svg>
+</div>
+<div class="float-icon" style="top:20%;right:7%;animation-duration:8s;animation-delay:2s;">
+  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <polygon points="15,2 28,22 2,22"/><line x1="15" y1="10" x2="15" y2="16"/><circle cx="15" cy="19" r="1.2" fill="rgba(200,169,110,1)"/>
+  </svg>
+</div>
+<div class="float-icon" style="top:70%;right:6%;animation-duration:6.5s;animation-delay:.5s;">
+  <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <circle cx="13" cy="13" r="11"/><line x1="13" y1="2" x2="13" y2="6"/><line x1="13" y1="20" x2="13" y2="24"/><line x1="2" y1="13" x2="6" y2="13"/><line x1="20" y1="13" x2="24" y2="13"/><circle cx="13" cy="13" r="4"/>
+  </svg>
+</div>
+<div class="float-icon" style="top:42%;left:3%;animation-duration:10s;animation-delay:3s;">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <polygon points="12,1 23,7 23,17 12,23 1,17 1,7"/>
+  </svg>
+</div>
+<div class="float-icon" style="top:36%;right:4%;animation-duration:11s;animation-delay:1.5s;">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(200,169,110,1)" stroke-width="1">
+    <rect x="3" y="3" width="18" height="18"/><rect x="7" y="7" width="10" height="10"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/>
+  </svg>
+</div>
+
+<!-- nav -->
+<nav>
+  <a href="index.html" class="nav-back">
+    <span class="nav-back-arrow"></span>
+    <span>返回首页</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="character_page.html">角色对话</a></li>
+    <li><a href="artifact.html">文物交互</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+
+  <!-- header -->
+  <div class="header">
+    <div class="header-eyebrow">探索模式</div>
+    <h1 class="header-title">选择游戏</h1>
+    <p class="header-sub">以游戏为介，探寻东汉器物背后的工艺密码与历史记忆</p>
+     <p class="header-sub">体验全部游戏即可领取纪念插图一份</p>
+    <div class="header-rule">
+      <div class="header-rule-dot"></div>
+    </div>
+  </div>
+
+  <!-- cards -->
+  <div class="cards-wrap">
+
+    <!-- separators -->
+    <div class="card-sep card-sep-left">
+      <div class="sep-line"></div>
+      <div class="sep-icon">⬡</div>
+      <div class="sep-line"></div>
+    </div>
+    <div class="card-sep card-sep-right">
+      <div class="sep-line"></div>
+      <div class="sep-icon">⬡</div>
+      <div class="sep-line"></div>
+    </div>
+
+    <div class="cards">
+      <!-- card 1 — puzzle -->
+      <div class="card" onclick="window.location.href='game1.html';" style="cursor: pointer;">
+  <div class="card-glow"></div>
+  <div class="card-illust">
+    <div class="card-illust-bg"></div>
+    <div class="card-icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="rgba(200,169,110,.75)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="8" width="20" height="20" rx="1"/>
+              <path d="M28 16 c4 0 4 4 8 4 c0-4 0-4 0-4"/>
+              <rect x="36" y="8" width="20" height="20" rx="1"/>
+              <path d="M36 28 c0 4-4 4-4 8 c4 0 4 0 4 0"/>
+              <rect x="8" y="36" width="20" height="20" rx="1"/>
+              <path d="M28 44 c4 0 4-4 8-4 c0 4 0 4 0 4"/>
+              <rect x="36" y="36" width="20" height="20" rx="1"/>
+              <line x1="18" y1="8" x2="18" y2="6"/>
+              <line x1="46" y1="56" x2="46" y2="58"/>
+            </svg>
+           </div>
+  </div>
+  <div class="card-body">
+    <div class="card-tag">拼图游戏</div>
+    <div class="card-title">碎·合</div>
+    <p class="card-desc">将文物拆解为残片，凭记忆与直觉拼回原形。在复原的过程中，感受器物的完整与残缺之美。</p>
+    <div class="card-cta">
+      <span>开始</span>
+      <span class="card-cta-line"></span>
+    </div>
+  </div>
+</div>
+
+      <!-- card 2 — color change -->
+     <div class="card" onclick="window.location.href='game2.html';" style="cursor: pointer;">
+  <div class="card-glow"></div>
+  <div class="card-illust">
+    <div class="card-illust-bg"></div>
+    <div class="card-icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="rgba(200,169,110,.75)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- lamp silhouette -->
+              <ellipse cx="32" cy="42" rx="14" ry="6"/>
+              <path d="M18 42 Q16 36 20 30 Q24 24 32 22 Q40 24 44 30 Q48 36 46 42"/>
+              <ellipse cx="32" cy="22" rx="7" ry="3"/>
+              <line x1="32" y1="19" x2="32" y2="13"/>
+              <circle cx="32" cy="11" r="3"/>
+              <!-- color rings emanating -->
+              <path d="M10 52 Q32 56 54 52" stroke-dasharray="3 3" opacity=".5"/>
+              <path d="M6 56 Q32 62 58 56" stroke-dasharray="3 3" opacity=".3"/>
+              <!-- sparkle dots -->
+              <circle cx="14" cy="30" r="1" fill="rgba(200,169,110,.5)"/>
+              <circle cx="50" cy="30" r="1" fill="rgba(200,169,110,.5)"/>
+              <circle cx="10" cy="42" r="1" fill="rgba(200,169,110,.3)"/>
+            </svg>
+              </div>
+  </div>
+  <div class="card-body">
+    <div class="card-tag">换色体验</div>
+    <div class="card-title">铜·变</div>
+    <p class="card-desc">探索青铜器在不同时代与环境下的色彩变迁——从错金初铸的金光熠熠，到千年后的沉绿锈迹。</p>
+    <div class="card-cta">
+      <span>开始</span>
+      <span class="card-cta-line"></span>
+    </div>
+  </div>
+</div>
+
+
+      <!-- card 3 — quiz -->
+     <div class="card" onclick="window.location.href='game3.html';" style="cursor: pointer;">
+  <div class="card-glow"></div>
+  <div class="card-illust">
+    <div class="card-illust-bg"></div>
+    <div class="card-icon">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="rgba(200,169,110,.75)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- scroll body -->
+              <rect x="14" y="12" width="36" height="40" rx="2"/>
+              <!-- scroll rollers -->
+              <path d="M14 16 Q8 16 8 20 Q8 24 14 24"/>
+              <path d="M50 16 Q56 16 56 20 Q56 24 50 24"/>
+              <path d="M14 40 Q8 40 8 44 Q8 48 14 48"/>
+              <path d="M50 40 Q56 40 56 44 Q56 48 50 48"/>
+              <!-- question mark -->
+              <path d="M27 26 Q27 21 32 21 Q37 21 37 26 Q37 30 32 32" stroke-width="1.5"/>
+              <circle cx="32" cy="36" r="1.2" fill="rgba(200,169,110,.75)" stroke="none"/>
+              <!-- horizontal lines (text) -->
+              <line x1="22" y1="44" x2="42" y2="44" opacity=".35"/>
+              <line x1="22" y1="48" x2="36" y2="48" opacity=".2"/>
+            </svg>
+         </div>
+  </div>
+  <div class="card-body">
+    <div class="card-tag">知识问答</div>
+    <div class="card-title">问·灯</div>
+    <p class="card-desc">烬明出题，以问答解锁隐藏故事。了解错银工艺、满城汉墓与那个时代的匠心与记忆。</p>
+    <div class="card-cta">
+      <span>开始</span>
+      <span class="card-cta-line"></span>
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+  <!-- bottom branding -->
+  <div class="brand-foot">
+    <span class="brand-foot-text">灯语·见物数智体验平台</span>
+  </div>
+
+</div>
+
+<script>
+/* ── cursor ── */
+const cur  = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx = innerWidth/2, my = innerHeight/2;
+let rx = mx, ry = my;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+(function cl(){
+  requestAnimationFrame(cl);
+  cur.style.left  = mx+'px'; cur.style.top  = my+'px';
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+})();
+
+/* ── cursor scale on card hover ── */
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    cur.style.transform  = 'translate(-50%,-50%) scale(1.8)';
+    ring.style.transform = 'translate(-50%,-50%) scale(1.4)';
+    ring.style.borderColor = 'rgba(200,169,110,.7)';
+  });
+  card.addEventListener('mouseleave', () => {
+    cur.style.transform  = 'translate(-50%,-50%) scale(1)';
+    ring.style.transform = 'translate(-50%,-50%) scale(1)';
+    ring.style.borderColor = '';
+  });
+});
+</script>
+</script>
+
+<!-- ── BGM ── -->
+<audio id="bgmAudio" loop preload="auto">
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+
+<!-- ── BGM floating ball ── -->
+<div id="bgmBall" title="背景音乐">
+  <div id="bgmDisc"></div>
+  <!-- note icon -->
+  <svg id="bgmIconPlay" viewBox="0 0 24 24" fill="none" stroke="rgba(200,169,110,.85)" stroke-width="1.8" stroke-linecap="round">
+    <path d="M9 18V6l12-3v12"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="15" r="3"/>
+  </svg>
+  <!-- pause icon -->
+  <svg id="bgmIconPause" viewBox="0 0 24 24" fill="none" stroke="rgba(200,169,110,.85)" stroke-width="1.8" stroke-linecap="round" style="display:none">
+    <rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>
+  </svg>
+</div>
+
+<script>
+/* ── BGM cross-page persistence ── */
+(function() {
+  const audio  = document.getElementById('bgmAudio');
+  const ball   = document.getElementById('bgmBall');
+  const iPlay  = document.getElementById('bgmIconPlay');
+  const iPause = document.getElementById('bgmIconPause');
+  const KEY_PLAYING = 'bgm_playing';
+  const KEY_TIME    = 'bgm_time';
+
+  // 页面音量配置：在这里统一管理各页面的 BGM 音量
+  // character_page 需要语音交互，音量压低；其余页面正常
+  const PAGE_VOLUME = {
+    'character_page.html': 0.12,
+    'artifact.html':           0.15,
+  };
+  const DEFAULT_VOLUME = 0.15;
+
+  function getVolume() {
+    const page = location.pathname.split('/').pop();
+    return PAGE_VOLUME[page] ?? DEFAULT_VOLUME;
+  }
+
+  audio.volume = getVolume();
+
+  let isPlaying = false;
+
+  function setUI(playing) {
+    isPlaying = playing;
+    ball.classList.toggle('playing', playing);
+    ball.classList.toggle('paused',  !playing);
+    iPlay.style.display  = playing ? 'none'  : '';
+    iPause.style.display = playing ? ''      : 'none';
+  }
+
+  function play() {
+    audio.play().then(() => {
+      setUI(true);
+      localStorage.setItem(KEY_PLAYING, '1');
+    }).catch(() => {});
+  }
+
+  function pause() {
+    audio.pause();
+    setUI(false);
+    localStorage.setItem(KEY_PLAYING, '0');
+  }
+
+  // save position periodically
+  setInterval(() => {
+    if (isPlaying) localStorage.setItem(KEY_TIME, audio.currentTime);
+  }, 1000);
+
+  function restoreAndPlay() {
+    const t = parseFloat(localStorage.getItem(KEY_TIME) || '0');
+    if (t > 0) audio.currentTime = t;
+    // play unless user explicitly paused
+    if (localStorage.getItem(KEY_PLAYING) !== '0') {
+      play();
+    } else {
+      setUI(false);
+    }
+  }
+
+  // try immediate autoplay
+  audio.addEventListener('canplay', function() {
+    restoreAndPlay();
+  }, { once: true });
+
+  // fallback: autoplay on first user interaction if browser blocked it
+  function onFirstInteraction() {
+    if (!isPlaying && localStorage.getItem(KEY_PLAYING) !== '0') {
+      play();
+    }
+    ['click','touchstart','keydown'].forEach(e => document.removeEventListener(e, onFirstInteraction));
+  }
+  ['click','touchstart','keydown'].forEach(e => document.addEventListener(e, onFirstInteraction, { once: true }));
+
+  ball.addEventListener('click', () => {
+    if (isPlaying) pause(); else play();
+  });
+
+  // save position before page unload
+  window.addEventListener('pagehide', () => {
+    localStorage.setItem(KEY_TIME, audio.currentTime);
+    localStorage.setItem(KEY_PLAYING, isPlaying ? '1' : '0');
+  });
+})();
+</script>
+</body>
+</html>
