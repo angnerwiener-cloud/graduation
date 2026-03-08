@@ -456,8 +456,8 @@ nav{
      如使用 cubism2/moc 格式，替换为 live2d.min.js + pixi-live2d-display
      ── -->
 <script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi.js@5.3.12/dist/pixi.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js"></script>
 
 </head>
 <body>
@@ -1025,12 +1025,7 @@ async function initLive2D() {
     canvas.style.height = H + 'px';
 
     // 注册 Live2D 插件到 PIXI（必须在 Application 创建前）
-    if (window.PIXI && PIXI.live2d) {
-  PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker);
-} else {
-  console.error('[Live2D] PIXI.live2d 未加载');
-  return;
-}
+    PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker);
 
     const app = new PIXI.Application({
       view: canvas,
