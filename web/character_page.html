@@ -1044,7 +1044,7 @@ async function initLive2D() {
     model.scale.set(scale);
     model.x = (W - model.width  * scale) / 2;
     model.y = (H - model.height * scale) / 2;
-
+model.internal.renderer.setClippingMaskBufferSize(2);
     app.stage.addChild(model);
 
     container.classList.add('loaded');
