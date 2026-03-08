@@ -1025,7 +1025,12 @@ async function initLive2D() {
     canvas.style.height = H + 'px';
 
     // 注册 Live2D 插件到 PIXI（必须在 Application 创建前）
-    PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker);
+    if (window.PIXI && PIXI.live2d) {
+  PIXI.live2d.Live2DModel.registerTicker(PIXI.Ticker);
+} else {
+  console.error('[Live2D] PIXI.live2d 未加载');
+  return;
+}
 
     const app = new PIXI.Application({
       view: canvas,
