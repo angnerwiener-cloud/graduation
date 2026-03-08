@@ -1,12 +1,12 @@
 {
 	"Version": 3,
 	"FileReferences": {
-		"Moc": "讲解员模型.moc3",
+		"Moc": "narrator.moc3",
 		"Textures": [
-			"讲解员模型.8192/texture_00.png"
+			"textures/texture_00.png"
 		],
-		"Physics": "讲解员模型.physics3.json",
-		"DisplayInfo": "讲解员模型.cdi3.json",
+		"Physics": "narrator.physics3.json",
+		"DisplayInfo": "narrator.cdi3.json",
 		"Expressions": [
 			{
 				"Name": "原版",
