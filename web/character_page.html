@@ -455,7 +455,6 @@ nav{
      cubism4 版本（支持 .model3.json 格式）
      如使用 cubism2/moc 格式，替换为 live2d.min.js + pixi-live2d-display
      ── -->
-<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js"></script>
 <script>
@@ -1044,7 +1043,7 @@ async function initLive2D() {
     model.scale.set(scale);
     model.x = (W - model.width  * scale) / 2;
     model.y = (H - model.height * scale) / 2;
-model.internal.renderer.setClippingMaskBufferSize(2);
+
     app.stage.addChild(model);
 
     container.classList.add('loaded');
