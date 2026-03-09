@@ -298,20 +298,19 @@
       if (!this.coreModel || !this.mvp) return;
       const gl = this.gl;
       const d  = this.coreModel.drawables;
-      const C  = window.Live2DCubismCore.Constants;
       const n  = d.ids.length;
+
+      // Cubism 5 Core: flags are raw bitmasks, helper fns may not exist
+      // DynamicFlags: bit2 = visible
+      // ConstantFlags: bit0 = additive, bit1 = multiplicative, bit2 = inverted mask
+      const isVisible  = (f) => (f & 0x04) !== 0;
+      const isAdditive = (f) => (f & 0x01) !== 0;
+      const isMultiply = (f) => (f & 0x02) !== 0;
+      const isInverted = (f) => (f & 0x04) !== 0;
 
       // Sort by render order
       const order = Array.from({length: n}, (_, i) => i);
       order.sort((a, b) => d.renderOrders[a] - d.renderOrders[b]);
-
-      /* ── Pass 1: render each mask group into FBO ── */
-      // Build mask lookup: maskKey → FBO or null
-      // For simplicity, render each drawable that needs masking using its masks rendered to FBO
-      // Then sample FBO when drawing the drawable
-      // (Full implementation: one FBO texture per unique mask set)
-      // Simplified here: use a single shared FBO, drawn per drawable group
-      // This handles any number of masks correctly.
 
       gl.viewport(0, 0, this.vW, this.vH);
       gl.clearColor(0, 0, 0, 0);
@@ -323,14 +322,14 @@
 
       for (const i of order) {
         // Visibility
-        if (!C.isVisible(d.dynamicFlags[i])) continue;
+        if (!isVisible(d.dynamicFlags[i])) continue;
 
         const opacity = d.opacities[i];
         if (opacity <= 0.001) continue;
 
         // Blend mode
-        const isAdd = C.isBlendModeAdditive(d.constantFlags[i]);
-        const isMul = C.isBlendModeMultiplicative(d.constantFlags[i]);
+        const isAdd = isAdditive(d.constantFlags[i]);
+        const isMul = isMultiply(d.constantFlags[i]);
         if (isAdd)
           gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
         else if (isMul)
@@ -348,7 +347,7 @@
           gl.activeTexture(gl.TEXTURE1);
           gl.bindTexture(gl.TEXTURE_2D, this._fbo.tex);
           gl.uniform1i(this._uMaskTex, 1);
-          const inv = C.isInvertedMask(d.constantFlags[i]) ? 1 : 0;
+          const inv = isInverted(d.constantFlags[i]) ? 1 : 0;
           gl.uniform1i(this._uInvertMask, inv);
         } else {
           gl.uniform1i(this._uUseMask, 0);
