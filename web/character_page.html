@@ -1032,11 +1032,15 @@ async function initLive2D() {
     canvas.style.height = H + 'px';
 
     const app = new PIXI.Application({
-      view: canvas,
-      width: W, height: H,
-      backgroundAlpha: 0,
-      antialias: true,
-    });
+  view: canvas,
+  width: W, height: H,
+  backgroundAlpha: 0,
+  antialias: true,
+});
+
+// 扩大遮罩缓冲区，支持更多剪切蒙版
+app.renderer.maskManager && (app.renderer.maskManager.maxMaskObjects = 64);
+PIXI.settings.SPRITE_MAX_TEXTURES = 32;
 
     const model = await Live2DModel.from(MODEL_PATH, { autoInteract: true });
 
