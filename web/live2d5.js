@@ -182,9 +182,13 @@
 
       // Canvas info → MVP
       const info = this.coreModel.canvasinfo;
-      const ppu  = info.pixelsPerUnit || 1;
-      const unitW = info.canvasWidth  / ppu;
-      const unitH = info.canvasHeight / ppu;
+      console.log('[Live2D5] canvasinfo:', JSON.stringify(info));
+      const ppu  = (info.pixelsPerUnit || info.PixelsPerUnit || 1);
+      const cW   = (info.canvasWidth   || info.CanvasWidth   || ppu * 2);
+      const cH   = (info.canvasHeight  || info.CanvasHeight  || ppu * 2);
+      const unitW = cW / ppu;
+      const unitH = cH / ppu;
+      console.log('[Live2D5] unit space:', unitW, 'x', unitH);
       this.mvp = makeOrthoMat(unitW, unitH, this.vW, this.vH);
 
       // 4. Textures
