@@ -3,7 +3,7 @@
 	"FileReferences": {
 		"Moc": "narrator.moc3",
 		"Textures": [
-			"narrator.8192/texture_00.png"
+			"textures/texture_00.png"
 		],
 		"Physics": "narrator.physics3.json",
 		"DisplayInfo": "narrator.cdi3.json"
